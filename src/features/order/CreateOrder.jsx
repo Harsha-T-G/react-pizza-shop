@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import { createOrder } from "../../services/apiRestaurant";
+import Button from "../../ui/Button";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
+    str,
   );
-const isValidNumber = (str) => str.length === 10;
+// const isValidNumber = (str) => str.length === 10;
 
 const fakeCart = [
   {
@@ -42,34 +42,39 @@ function CreateOrder() {
   const cart = fakeCart;
 
   return (
-    <div>
-      <h2>Ready to order? Let's go!</h2>
+    <div className="px-4 py-6">
+      <h2 className="my-5 text-xl font-semibold">Ready to order? Let's go!</h2>
 
       {/* <Form method="POST" action="/order/new"> */}
       <Form method="POST" action="/order/new">
-        <div>
+        <div className="gap-2: mb-5 flex flex-col">
           <label>First Name</label>
-          <input type="text" name="customer" required />
+          <input type="text" className="input" name="customer" required />
         </div>
 
         <div>
           <label>Phone number</label>
-          <div>
-            <input type="tel" name="phone" required />
+          <div className="grow">
+            <input type="tel" className="input" name="phone" required />
+            {formErrors?.phone && (
+              <p className="mt-2 rounded-md p-2 text-xs text-red-700 file:bg-red-100">
+                {formErrors.phone}
+              </p>
+            )}
+            {/* {formErrors?.num && <p>{formErrors.num}</p>} */}
           </div>
-          {formErrors?.phone && <p>{formErrors.phone}</p>}
-          {formErrors?.num && <p>{formErrors.num}</p>}
         </div>
 
         <div>
           <label>Address</label>
           <div>
-            <input type="text" name="address" required />
+            <input type="text" name="address" required className="input" />
           </div>
         </div>
 
-        <div>
+        <div className="space-x-2">
           <input
+            className="my-3 h-3.5 w-3.5 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 md:h-6 md:w-6"
             type="checkbox"
             name="priority"
             id="priority"
@@ -81,9 +86,9 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <button disabled={isSubmitting}>
+          <Button disabled={isSubmitting} type="primary">
             {isSubmitting ? "Placing Order.... " : "Order now"}
-          </button>
+          </Button>
         </div>
       </Form>
     </div>
@@ -93,7 +98,6 @@ function CreateOrder() {
 export async function action({ request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-  console.log(data);
 
   const order = {
     ...data,
@@ -106,7 +110,7 @@ export async function action({ request }) {
     errors.phone =
       "Please give us your correct phone number. We might need it to contact you";
 
-  if (!isValidNumber(order.phone)) errors.num = "Please enter the 10 number ";
+  // if (!isValidNumber(order.phone)) errors.num = "Please enter the 10 number ";
   if (Object.keys(errors).length > 0) return errors;
 
   // if everything is ok then create the new order and returnn it
